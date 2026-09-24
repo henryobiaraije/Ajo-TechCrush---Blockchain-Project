@@ -36,8 +36,9 @@ contract AjoRegistry {
     // =====================================================
     /**
      * @notice Tracks the total participants that has joined
+     * @notice Changed this to private for security reasons. Now, only join() in AjoRegistry can change it.
      */
-    uint8 public totalParticipants;
+    uint8 private totalParticipants;
 
     /// @notice Stores all participants
     /// @notice Intentionally made this private to prevent it generating getter and setters as anyone here must pay first. As security conscious guy we I be na.
@@ -103,4 +104,12 @@ contract AjoRegistry {
         _; // continue.
     }
 
+    // =====================================================
+    //                       GETTERS
+    // =====================================================
+
+    /// @notice Returns the total participants since we've changed it to private.
+    function getTotalParticipants() public view returns(uint8){
+        return totalParticipants;
+    }
 }
