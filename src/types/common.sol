@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache
+pragma solidity ^0.8.13;
 
 /// @notice Represents a single ajo participant
     struct AjoParticipant {

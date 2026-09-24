@@ -10,9 +10,13 @@ contract Ajo {
     // =====================================================
 
     /// @notice When there is no more chance to accept more people, this error will be thrown.
-    error AjoMaxParticipantsReached();
+    error JoinAjoMaxParticipantsReached();
 
-    error InsufficientJoinFee(uint256 whatYouSent, uint256 whatIsRequired);
+    /// @notice when the participant no wan pay the join fee.
+    error JoinInsufficientJoinFee(uint256 whatYouSent, uint256 whatIsRequired);
+
+    /// @notice Thrown when a participant tries to join more than onces.
+    error JoinYouHaveJoinedBefore(AjoParticipant yourPreviousDetail);
 
     // =====================================================
     //                       CONSTANTS
@@ -36,22 +40,18 @@ contract Ajo {
     uint8 public totalParticipants;
 
     /// @notice Stores all participants
-    /// @security Intentionally made this private to prevent it generating getter and setters as anyone here must pay first. As security conscious guy we I be na.
+    /// @notice Intentionally made this private to prevent it generating getter and setters as anyone here must pay first. As security conscious guy we I be na.
     mapping(address => AjoParticipant) private participants;
 
     /**
      * @notice Enables users to join this ajo contribution
      *
-     * @notice mustPayJoinFee Ensures the user cannot join without paying the join fee.
-     * @notice ensureWeAreStillAcceptingParticipants Ensures we don't register more people than needed.
+     * @notice (1) mustPayJoinFee Ensures the user cannot join without paying the join fee.
+     * @notice (2) ensureWeAreStillAcceptingParticipants` Ensures we don't register more people than needed.
      *
      * @return success True if the participant joined successfully.
      */
     function join() public payable mustPayJoinFee ensureWeAreStillAcceptingParticipants returns (bool) {
-        // Ensure we have not exceeded the total number of participants.
-        if (totalParticipants >= MAXIMUM_AJO_PARTICIPANTS) {
-            revert(AjoMaxParticipantsReached());
-        }
 
         // Ensure user doesn't exist yet (by account address).
         //        usersExist = participants.co
@@ -67,10 +67,14 @@ contract Ajo {
         return true;
     }
 
+    // =====================================================
+    //                       MODIFIERS
+    // =====================================================
+
     /// @notice This ensures each participant just pay a fixed fee when joining.
     modifier mustPayJoinFee()  {
         if (msg.value < JOIN_FEE) {
-            revert(InsufficientJoinFee(msg.value, JOIN_FEE));
+            revert JoinInsufficientJoinFee(msg.value, JOIN_FEE);
         }
         _; // Continue from here.
     }
@@ -78,9 +82,16 @@ contract Ajo {
     /// @notice This ensures we won't register more participants than allowed.
     modifier ensureWeAreStillAcceptingParticipants(){
         if (totalParticipants >= MAXIMUM_AJO_PARTICIPANTS) {
-            revert(AjoMaxParticipantsReached());
+            revert JoinAjoMaxParticipantsReached();
         }
         _; // continue from here.
+    }
+
+    modifier preventDoubleJoiningByOneParticipant(){
+        if (participants[msg.sender] != address(0)) {
+            revert JoinYouHaveJoinedBefore(AjoParticipant);
+        }
+        _; // continue.
     }
 
 }
