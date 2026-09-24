@@ -109,7 +109,12 @@ contract AjoRegistry {
     // =====================================================
 
     /// @notice Returns the total participants since we've changed it to private.
-    function getTotalParticipants() public view returns(uint8){
+    function getTotalParticipants() public view returns (uint8){
         return totalParticipants;
+    }
+
+    /// @notice Returns all the ajo participants since its private.
+    function getParticipants() public view returns (mapping(address => AjoParticipant)){
+        return participants;
     }
 }
