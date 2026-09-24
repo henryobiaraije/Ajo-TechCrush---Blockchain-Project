@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache
 pragma solidity ^0.8.13;
 
+import {AjoParticipant} from "../types/common.sol";
+
 contract AjoRegistry {
 
     // =====================================================
@@ -44,7 +46,7 @@ contract AjoRegistry {
     /**
      * @notice Enables users to join this ajo contribution
      *
-     * @param fullName The name of the participant
+     * @param _fullName The name of the participant
      *
      * @notice (1) mustPayJoinFee Ensures the user cannot join without paying the join fee.
      * @notice (2) ensureWeAreStillAcceptingParticipants` Ensures we don't register more people than needed.
