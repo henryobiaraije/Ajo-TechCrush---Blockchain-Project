@@ -88,8 +88,9 @@ contract Ajo {
     }
 
     modifier preventDoubleJoiningByOneParticipant(){
-        if (participants[msg.sender] != address(0)) {
-            revert JoinYouHaveJoinedBefore(AjoParticipant);
+        // Lets use serial number to save gas. address will work too but will be more costly
+        if (participants[msg.sender].serialNumber != 0) {
+            revert JoinYouHaveJoinedBefore(participants[msg.sender]);
         }
         _; // continue.
     }
