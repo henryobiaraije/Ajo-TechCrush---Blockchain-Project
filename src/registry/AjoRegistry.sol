@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import {AjoParticipant} from "../types/common.sol";
 
-contract AjoRegistry {
+abstract contract AjoRegistry {
 
     // =====================================================
     //                       ERRORS
