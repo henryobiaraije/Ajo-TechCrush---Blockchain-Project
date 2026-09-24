@@ -44,6 +44,10 @@ abstract contract AjoRegistry {
     /// @notice Intentionally made this private to prevent it generating getter and setters as anyone here must pay first. As security conscious guy we I be na.
     mapping(address => AjoParticipant) private participants;
 
+    /// @notice A list of participants for easy access from web2.
+    /// @dev Can also be used for pagination later.
+    AjoParticipant[] private listOfParticipants;
+
     /**
      * @notice Enables users to join this ajo contribution
      *
@@ -68,6 +72,7 @@ abstract contract AjoRegistry {
             serialNumber: newUserSerialNumber,
             participantFullName: _fullName
         });
+        listOfParticipants.push(participants[msg.sender]);
 
         // Track number of users who are joining.
         totalParticipants += 1;
@@ -113,8 +118,10 @@ abstract contract AjoRegistry {
         return totalParticipants;
     }
 
-    /// @notice Returns all the ajo participants since its private.
-    function getParticipants() public view returns (mapping(address => AjoParticipant)){
-        return participants;
+    /// @notice Returns an array containing all the participants.
+    /// Will use pagination after expanding.
+    /// @return AjoParticipant A list of participants.
+    function getListOfParticipants() public view returns (AjoParticipant[] memory){
+        return listOfParticipants;
     }
 }
