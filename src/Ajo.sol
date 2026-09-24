@@ -5,9 +5,18 @@ import {AjoParticipant} from "./types/common.sol";
 
 contract Ajo {
 
+    // =====================================================
+    //                       ERRORS
+    // =====================================================
+
     /// @notice When there is no more chance to accept more people, this error will be thrown.
     error AjoMaxParticipantsReached();
 
+    error InsufficientJoinFee(uint256 whatYouSent, uint256 whatIsRequired);
+
+    // =====================================================
+    //                       CONSTANTS
+    // =====================================================
     /**
      * @notice The maximum number of participants to participate in an ajo contribution at a time.
      */
@@ -18,6 +27,9 @@ contract Ajo {
      */
     uint256 public constant JOIN_FEE = 1 gwei;
 
+    // =====================================================
+    //                       STATES
+    // =====================================================
     /**
      * @notice Tracks the total participants that has joined
      */
@@ -29,16 +41,20 @@ contract Ajo {
 
     /**
      * @notice Enables users to join this ajo contribution
+     *
+     * @notice mustPayJoinFee Ensures the user cannot join without paying the join fee.
+     * @notice ensureWeAreStillAcceptingParticipants Ensures we don't register more people than needed.
+     *
      * @return success True if the participant joined successfully.
      */
-    function join() public payable returns (bool) {
+    function join() public payable mustPayJoinFee ensureWeAreStillAcceptingParticipants returns (bool) {
         // Ensure we have not exceeded the total number of participants.
         if (totalParticipants >= MAXIMUM_AJO_PARTICIPANTS) {
             revert(AjoMaxParticipantsReached());
         }
 
         // Ensure user doesn't exist yet (by account address).
-        //        usersExist =
+        //        usersExist = participants.co
 
         // Ensure the user sent the join fee.
 
@@ -50,4 +66,21 @@ contract Ajo {
 
         return true;
     }
+
+    /// @notice This ensures each participant just pay a fixed fee when joining.
+    modifier mustPayJoinFee()  {
+        if (msg.value < JOIN_FEE) {
+            revert(InsufficientJoinFee(msg.value, JOIN_FEE));
+        }
+        _; // Continue from here.
+    }
+
+    /// @notice This ensures we won't register more participants than allowed.
+    modifier ensureWeAreStillAcceptingParticipants(){
+        if (totalParticipants >= MAXIMUM_AJO_PARTICIPANTS) {
+            revert(AjoMaxParticipantsReached());
+        }
+        _; // continue from here.
+    }
+
 }
