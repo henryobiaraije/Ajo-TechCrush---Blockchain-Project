@@ -8,6 +8,7 @@ pragma solidity ^0.8.13;
         address participantAddress;
 
         /// @notice The serial number of this participant. Will be used to determine who go carry the pot and when serially.
+        /// @notice Starts from 1.
         uint256 serialNumber;
 
         /// @notice The full name of this participant.

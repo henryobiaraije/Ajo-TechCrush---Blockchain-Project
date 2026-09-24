@@ -46,23 +46,30 @@ contract Ajo {
     /**
      * @notice Enables users to join this ajo contribution
      *
+     * @param fullName The name of the participant
+     *
      * @notice (1) mustPayJoinFee Ensures the user cannot join without paying the join fee.
      * @notice (2) ensureWeAreStillAcceptingParticipants` Ensures we don't register more people than needed.
+     * @notice (2) preventDoubleJoiningByOneParticipant Ensures a user cannot register more than onces.
      *
      * @return success True if the participant joined successfully.
      */
-    function join() public payable mustPayJoinFee ensureWeAreStillAcceptingParticipants returns (bool) {
-
-        // Ensure user doesn't exist yet (by account address).
-        //        usersExist = participants.co
-
-        // Ensure the user sent the join fee.
+    function join(bytes32 _fullName) public payable
+    mustPayJoinFee
+    ensureWeAreStillAcceptingParticipants
+    preventDoubleJoiningByOneParticipant
+    returns (bool) {
 
         // Add the user as a participant.
+        uint256 newUserSerialNumber = totalParticipants + 1;
+        participants[msg.sender] = AjoParticipant({
+            participantAddress: msg.sender,
+            serialNumber: newUserSerialNumber,
+            participantFullName: _fullName
+        });
 
         // Track number of users who are joining.
-
-        // Track total number of participants that has joined.
+        totalParticipants += 1;
 
         return true;
     }
@@ -87,6 +94,7 @@ contract Ajo {
         _; // continue from here.
     }
 
+    /// @notice Prevents duplicate joining by one participant.
     modifier preventDoubleJoiningByOneParticipant(){
         // Lets use serial number to save gas. address will work too but will be more costly
         if (participants[msg.sender].serialNumber != 0) {
