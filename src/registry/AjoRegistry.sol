@@ -10,13 +10,17 @@ abstract contract AjoRegistry {
     // =====================================================
 
     /// @notice When there is no more chance to accept more people, this error will be thrown.
-    error JoinAjoMaxParticipantsReached();
+    error AjoRegistryJoinAjoMaxParticipantsReached();
 
     /// @notice when the participant no wan pay the join fee.
-    error JoinInsufficientJoinFee(uint256 whatYouSent, uint256 whatIsRequired);
+    error AjoRegistryJoinInsufficientJoinFee(uint256 whatYouSent, uint256 whatIsRequired);
 
     /// @notice Thrown when a participant tries to join more than onces.
-    error JoinYouHaveJoinedBefore(AjoParticipant yourPreviousDetail);
+    error AjoRegistryJoinYouHaveJoinedBefore(AjoParticipant yourPreviousDetail);
+
+    /// @notice Thrown when the participant is not found.
+    /// @dev usually returned when trying to retrieve a particular participant.
+    error AjoRegistryParticipantNotFound();
 
     // =====================================================
     //                       CONSTANTS
@@ -87,7 +91,7 @@ abstract contract AjoRegistry {
     /// @notice This ensures each participant just pay a fixed fee when joining.
     modifier mustPayJoinFee()  {
         if (msg.value < JOIN_FEE) {
-            revert JoinInsufficientJoinFee(msg.value, JOIN_FEE);
+            revert AjoRegistryJoinInsufficientJoinFee(msg.value, JOIN_FEE);
         }
         _; // Continue from here.
     }
@@ -95,7 +99,7 @@ abstract contract AjoRegistry {
     /// @notice This ensures we won't register more participants than allowed.
     modifier ensureWeAreStillAcceptingParticipants(){
         if (totalParticipants >= MAXIMUM_AJO_PARTICIPANTS) {
-            revert JoinAjoMaxParticipantsReached();
+            revert AjoRegistryJoinAjoMaxParticipantsReached();
         }
         _; // continue from here.
     }
@@ -104,7 +108,7 @@ abstract contract AjoRegistry {
     modifier preventDoubleJoiningByOneParticipant(){
         // Lets use serial number to save gas. address will work too but will be more costly
         if (participants[msg.sender].serialNumber != 0) {
-            revert JoinYouHaveJoinedBefore(participants[msg.sender]);
+            revert AjoRegistryJoinYouHaveJoinedBefore(participants[msg.sender]);
         }
         _; // continue.
     }
@@ -123,5 +127,13 @@ abstract contract AjoRegistry {
     /// @return AjoParticipant A list of participants.
     function getListOfParticipants() public view returns (AjoParticipant[] memory){
         return listOfParticipants;
+    }
+
+    /// @notice Return participant by participant address
+    function getParticipantByAddress(address participantAddress) public view returns (AjoParticipant){
+        if (participants[msg.sender].participantAddress == address(0)) {
+            revert AjoRegistryParticipantNotFound();
+        }
+        return participants[msg.sender];
     }
 }
