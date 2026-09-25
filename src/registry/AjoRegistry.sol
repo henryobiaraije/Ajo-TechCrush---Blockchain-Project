@@ -130,7 +130,7 @@ abstract contract AjoRegistry {
     }
 
     /// @notice Return participant by participant address
-    function getParticipantByAddress(address participantAddress) public view returns (AjoParticipant){
+    function getParticipantByAddress(address participantAddress) public view returns (AjoParticipant memory){
         if (participants[msg.sender].participantAddress == address(0)) {
             revert AjoRegistryParticipantNotFound();
         }
